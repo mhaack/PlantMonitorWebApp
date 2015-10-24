@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!--  App Title  -->
+	<title>Jasi's Plant Monitor</title>
+	<!--  App Description  -->
+	<meta name="description" content="Capture is a free bootstrap v3.3.2 app landing page perfect to present you IOS, android or windows application in an elegant way." />
+	<meta charset="utf-8">
+	<meta name="author" content="Markus Haack">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+
+	<link rel="apple-touch-icon" href="images/icon.png" />
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/main.css" />
+
+	<script type="text/javascript" src="https://cdn.polyfill.io/v1/polyfill.min.js?features=Intl.~locale.en"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="http://www.parsecdn.com/js/parse-latest.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.3/handlebars.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js"></script>
+	<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+	<script type="text/javascript" src="http://code.highcharts.com/highcharts-more.js"></script>
+	<script type="text/javascript" src="http://code.highcharts.com/modules/solid-gauge.js"></script>
+	<script type="text/javascript" src="js/handlebars-intl.min.js"></script>
+	<script type="text/javascript" src="js/data.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+
+	<script type="text/javascript">
+		Parse.initialize("xSMOH0t5rDZFnBNoaxZBWBTwGtsBAlwXiPJpPhfW", "X6d5yKXKee68dckr2xd636wb9gdUM9mdHEUaxqJo");
+		HandlebarsIntl.registerWith(Handlebars);
+	</script>
+</head>
+
+<body>
+
+	<!--  Header Section  -->
+	<header>
+		<div class="container">
+			<div class="logo pull-left animated fadeInLeft">
+				<img src="img/icon-seedling.png" alt="" title="">
+			</div>
+			<nav class="pull-top">
+				<ul class="list-unstyled">
+					<li><a href="#hero">Status</a></li>
+					<li><a href="#app_features">Last 24 hours</a></li>
+					<li><a href="#history">History</a></li>
+				</ul>
+			</nav>
+			<span class="burger_icon">menu</span>
+		</div>
+	</header>
+	<!--  End Header Section  -->
+
+	<!--  Hero Section  -->
+	<section class="hero" id="hero">
+		<div class="container">
+			<div class="row text-center">
+				<img src="img/plant2.svg" alt="Plant" height="32">
+				<h1 class="text-uppercase animated fadeInDown">What is going on with my plants?</h1>
+				<div id="main-data" />
+			</div>
+		</div>
+	</section>
+	<script type="text/x-handlebars-template" id="main-data-template">
+		<p class="timestamp">Last measurement: {{formatDate createdAt day="numeric" month="short" year="numeric" hour="numeric" minute="numeric"}}</p>
+		<div id="container-soil1-main" class="main-data-gauge"></div>
+		<div id="container-soil2-main" class="main-data-gauge"></div>
+		<div id="container-soil3-main" class="main-data-gauge"></div>
+		<div class="clearfix" />
+		<p class="data">temperature: {{formatNumber temperature minimumFractionDigits="1" maximumFractionDigits="1"}} °C, humidity: {{formatNumber humidity maximumFractionDigits="0"}}%, pressure: {{formatNumber pressure maximumFractionDigits="0"}} hPa</p>
+	</script>
+	<!--  End Hero Section  -->
+
+	<!--  App Features Section  -->
+	<section class="app_features" id="app_features">
+		<div class="container">
+			<div class="row text-center">
+				<div class="details animated fadeInDown">
+					<img class="animated fadeInDown" src="img/plant1.svg" alt="Plant" height="32">
+					<h1 class="text-uppercase">The last 24 hours</h1>
+					<table class="table table-hover table-expandable table-striped 24hourtable">
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Status</th>
+								<th>Temperature</th>
+							</tr>
+						</thead>
+						<tbody id="output">
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+	<script type="text/x-handlebars-template" id="24hourtabletemplate">
+		<tr>
+			<td>{{formatDate createdAt day="numeric" month="short" year="numeric" hour="numeric" minute="numeric"}}</td>
+			<td>{{status}}</td>
+			<td>{{formatNumber temperature minimumFractionDigits="1" maximumFractionDigits="1"}} °C</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="row2">
+				<div class="soil">
+					<div id="container-soil1-{{objectId}}" style="width: 100px; height: 66px; float: left"></div>
+					<div id="container-soil2-{{objectId}}" style="width: 100px; height: 66px; float: left"></div>
+					<div id="container-soil3-{{objectId}}" style="width: 100px; height: 66px; float: left"></div>
+				</div>
+				<div class="air">
+					Air: humidity: {{formatNumber humidity maximumFractionDigits="0"}}% / pressure: {{formatNumber pressure maximumFractionDigits="0"}} hPa
+				</div>
+			</td>
+		</tr>
+	</script>
+	<!--  And App Features Section  -->
+
+	<!--  History Section  -->
+	<section class="history" id="history">
+		<div class="container">
+			<div class="row text-center">
+				<img class="animated fadeInDown" src="img/temp.svg" alt="Temperature" height="32">
+				<h1 class="text-uppercase animated fadeInDown">Temperature History</h1>
+				<div id="history-data" style="min-width: 310px; height: 200px; margin: 0 auto"></div>
+			</div>
+		</div>
+	</section>
+	<!--  History Section  -->
+
+	<!--  Footer Section  -->
+	<footer>
+		<p class="copyright animated fadeIn">© 2015
+			<strong>Markus Haack</strong>
+			<br/> Template by
+			<a href="http://pixelhint.com" target="_blank">
+				<strong>Pixelhint.com</strong>
+			</a>
+		</p>
+	</footer>
+	<!--  End Footer Section  -->
+</body>
+</html>

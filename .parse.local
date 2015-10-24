@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "Plant Monitor": {
+      "applicationId": "xSMOH0t5rDZFnBNoaxZBWBTwGtsBAlwXiPJpPhfW"
+    },
+    "_default": {
+      "link": "Plant Monitor"
+    }
+  }
+}
