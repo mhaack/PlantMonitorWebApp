@@ -29,6 +29,20 @@ $(document).ready(function() {
     $('header .burger_icon').toggleClass('active');
   });
 
+
+  $('.switcher a#tempLink').click(function(e) {
+    event.preventDefault();
+    $('#24hour-temp-data').removeClass('hidden');
+    $('#24hour-soil-data').addClass('hidden');
+  });
+
+  $('.switcher a#soilLink').click(function(e) {
+    event.preventDefault();
+    $('#24hour-temp-data').addClass('hidden');
+    $('#24hour-soil-data').removeClass('hidden');
+  });
+
+
   get24HourData();
   getDailyTemperatureData();
 });

@@ -4,7 +4,7 @@ Parse.Cloud.define("hello", function(request, response) {
 
 Parse.Cloud.beforeSave("Status", function(request, response) {
   var createdAt = new Date();
-  if (createdAt.getHours() == 10) {
+  if (createdAt.getHours() == 11) {
     request.object.set("daily", true);
   }
   response.success();

@@ -54,6 +54,105 @@ var gaugeOptions = {
   }
 };
 
+var tempChartOptions = {
+  chart: {
+    type: 'spline'
+  },
+  title: {
+    text: '',
+    style: {
+      display: 'none'
+    }
+  },
+  subtitle: {
+    text: '',
+    style: {
+      display: 'none'
+    }
+  },
+  legend: {
+    enabled: false
+  },
+  credits: {
+    enabled: false
+  },
+  xAxis: {
+    type: 'datetime'
+  },
+  yAxis: {
+    title: {
+      enabled: false
+    },
+    labels: {
+      format: '{value}°C'
+    }
+  },
+  tooltip: {
+    crosshairs: true,
+    valueSuffix: '°C',
+    valueDecimals: 1,
+    xDateFormat: '%d. %b %H:%M'
+  },
+  plotOptions: {
+    spline: {
+      marker: {
+        radius: 4,
+        lineColor: '#666666',
+        lineWidth: 1
+      }
+    }
+  }
+};
+
+var soilChartOptions = {
+  chart: {
+    type: 'spline'
+  },
+  title: {
+    text: 'Soil Moisture',
+    style: {
+      "color": "#525252"
+    }
+  },
+  subtitle: {
+    text: '',
+    style: {
+      display: 'none'
+    }
+  },
+  credits: {
+    enabled: false
+  },
+  xAxis: {
+    type: 'datetime'
+  },
+  yAxis: {
+    title: {
+      enabled: false
+    },
+    labels: {
+      format: '{value}%'
+    }
+
+  },
+  tooltip: {
+    crosshairs: true,
+    valueDecimals: 1,
+    valueSuffix: '%',
+    xDateFormat: '%d. %b %H:%M',
+    shared: true
+  },
+  plotOptions: {
+    spline: {
+      marker: {
+        radius: 4,
+        lineColor: '#666666',
+        lineWidth: 1
+      }
+    }
+  }
+};
+
 // render gauge chart
 function renderGauge(objectId, value, title, titlepos) {
   $('#container-' + objectId).highcharts(Highcharts.merge(gaugeOptions, {
@@ -74,81 +173,10 @@ function renderGauge(objectId, value, title, titlepos) {
 };
 
 // render temperature chart
-function tempChart(data) {
-  $('#history-data').highcharts({
-    chart: {
-      type: 'spline'
-    },
-    title: {
-      text: '',
-      style: {
-        display: 'none'
-      }
-    },
-    subtitle: {
-      text: '',
-      style: {
-        display: 'none'
-      }
-    },
-    xAxis: {
-      type: 'datetime',
-      labels: {
-        formatter: function() {
-          var myDate = new Date(this.value);
-          var newDateMs = Date.UTC(myDate.getUTCFullYear(), myDate.getUTCMonth() - 1, myDate.getUTCDate());
-          return Highcharts.dateFormat('%e. %b', newDateMs);
-        }
-      }
-    },
-    tooltip: {
-      headerFormat: '',
-      valueSuffix: '°',
-      valueDecimals: 1
-    },
-    legend: {
-      enabled: false
-    },
-    credits: {
-      enabled: false
-    },
-    yAxis: {
-      title: {
-        enabled: false
-      },
-      labels: {
-        formatter: function() {
-          return this.value + '°';
-        }
-      }
-    },
-    plotOptions: {
-      spline: {
-        marker: {
-          radius: 4,
-          lineColor: '#666666',
-          lineWidth: 1
-        }
-      }
-    },
+function renderChart(data, divId, config) {
+  $(divId).highcharts(Highcharts.merge(config, {
     series: data
-  });
-}
-
-// table helper to attach drop down switch column
-function attachTabeColumn(output) {
-  var table = output.parent();
-  table.children('thead').children('tr').append('<th></th>');
-  table.children('tbody').children('tr').filter(':odd').hide();
-  table.children('tbody').children('tr').filter(':even').click(function() {
-    var element = $(this);
-    element.next('tr').toggle('slow');
-    element.find(".table-expandable-arrow").toggleClass("up");
-  });
-  table.children('tbody').children('tr').filter(':even').each(function() {
-    var element = $(this);
-    element.append('<td><div class="table-expandable-arrow"></div></td>');
-  });
+  }));
 }
 
 // get 24 hour history data for main view and table from parse.com
@@ -156,10 +184,6 @@ function get24HourData() {
   var outputMain = $("#main-data");
   var sourceMain = $("#main-data-template").html();
   var templateMain = Handlebars.compile(sourceMain);
-
-  var output = $("#output");
-  var source = $("#24hourtabletemplate").html();
-  var template = Handlebars.compile(source);
 
   var PlantStatus = Parse.Object.extend("Status");
   var query = new Parse.Query(PlantStatus);
@@ -179,21 +203,47 @@ function get24HourData() {
         renderGauge("soil3-main", object.get("soil3"), "Plant 3", -25);
       }
 
+      var tempSeries = [];
+      var tempDataPoint = {
+        name: "Temp",
+        data: [],
+        pointInterval: 3600 * 1000
+      };
+      var soilSeries = [];
+      var soil1DataPoint = {
+        name: "Plant 1",
+        data: [],
+        pointInterval: 3600 * 1000
+      };
+      var soil2DataPoint = {
+        name: "Plant 2",
+        data: [],
+        pointInterval: 3600 * 1000
+      };
+      var soil3DataPoint = {
+        name: "Plant 3",
+        data: [],
+        pointInterval: 3600 * 1000
+      };
       for (var i = 0; i < results.length; i++) {
         var object = results[i];
-        // convert numbers from string to float
-        object.set("temperature", parseFloat(object.get("temperature")));
-        object.set("humidity", parseFloat(object.get("humidity")));
-        object.set("pressure", parseFloat(object.get("pressure")));
-
-        var html = template(object.toJSON());
-        output.append(html);
-
-        renderGauge("soil1-" + object.id, object.get("soil1"), "Plant 1", -22);
-        renderGauge("soil2-" + object.id, object.get("soil2"), "Plant 2", -22);
-        renderGauge("soil3-" + object.id, object.get("soil3"), "Plant 3", -22);
+        tempDataPoint.data.push([object.createdAt.valueOf(), parseFloat(object.get("temperature"))]);
+        soil1DataPoint.data.push([object.createdAt.valueOf(), parseInt(object.get("soil1")) / 4096 * 100]);
+        soil2DataPoint.data.push([object.createdAt.valueOf(), parseInt(object.get("soil2")) / 4096 * 100]);
+        soil3DataPoint.data.push([object.createdAt.valueOf(), parseInt(object.get("soil3")) / 4096 * 100]);
       }
-      attachTabeColumn(output);
+      tempSeries.push(tempDataPoint);
+      var config = tempChartOptions;
+      config.title.text = "Temperature";
+      config.title.style = {
+        "color": "#525252"
+      };
+      renderChart(tempSeries, "#24hour-temp-data", config);
+      soilSeries.push(soil1DataPoint);
+      soilSeries.push(soil2DataPoint);
+      soilSeries.push(soil3DataPoint);
+      renderChart(soilSeries, "#24hour-soil-data", soilChartOptions);
+
     },
     error: function(error) {
       alert("Error: " + error.code + " " + error.message);
@@ -220,7 +270,7 @@ function getDailyTemperatureData() {
         series.data.push([object.createdAt.valueOf(), parseFloat(object.get("temperature"))]);
       }
       seriesArr.push(series);
-      tempChart(seriesArr);
+      renderChart(seriesArr, "#history-temp-data", tempChartOptions);
     },
     error: function(error) {
       alert("Error: " + error.code + " " + error.message);
