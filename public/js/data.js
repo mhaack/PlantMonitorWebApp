@@ -26,9 +26,9 @@ var gaugeOptions = {
     min: 0,
     max: 100,
     stops: [
-      [0.1, '#DF5353'], // red
-      [0.3, '#DDDF0D'], // yellow
-      [0.9, '#41c17d'] // green
+      [0.5, '#DF5353'], // red
+      [0.8, '#DDDF0D'], // yellow
+      [1, '#41c17d'] // green
     ],
     lineWidth: 0,
     minorTickInterval: null,
